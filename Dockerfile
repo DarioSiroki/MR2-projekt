@@ -1,9 +1,12 @@
 FROM golang:1.14
 
-WORKDIR ./server
-COPY . .
+WORKDIR /app
+COPY go.mod .
+COPY go.sum .
 
-RUN go get -d -v ./...
+WORKDIR /app/server
+COPY server/ .
+
 RUN go install -v ./...
 
 CMD ["server"]
