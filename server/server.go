@@ -90,7 +90,7 @@ func handler(c net.Conn) {
 
 func main() {
 	rdb = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     "redis:6379",
 		Password: "",
 		DB:       0,
 	})
@@ -98,6 +98,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error starting server:", err)
 	}
+	fmt.Println("TCP server starting")
 	for {
 		connection, err := ln.Accept()
 		if err != nil {
