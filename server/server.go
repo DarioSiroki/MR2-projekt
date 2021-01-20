@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 
 	"fmt"
-	"io"
 	"log"
 	"net"
 
@@ -19,27 +18,19 @@ var rdb *redis.Client
 
 func registerUser(c net.Conn) string {
 	user := User{}
-
-	buf := make([]byte, 0, 4096) // big buffer
 	tmp := make([]byte, 256)
-	for {
-		n, err := c.Read(tmp)
-		if err != nil {
-			if err != io.EOF {
-				fmt.Println("read error:", err)
-			}
-			break
-		}
-		buf = append(buf, tmp[:n]...)
+	n, err := c.Read(tmp)
+	if err != nil {
+		fmt.Println("read error:", err)
 	}
-
-	err := json.Unmarshal(buf, &user)
+	err = json.Unmarshal(tmp[:n], &user)
 
 	if err != nil {
 		log.Print(err)
 		return "error"
 	}
 
+	fmt.Println("Registering ", user.Email, user.Pubkey)
 	err = rdb.Set(ctx, user.Email, user.Pubkey, 0).Err()
 	if err != nil {
 		panic(err)
@@ -48,13 +39,27 @@ func registerUser(c net.Conn) string {
 	return "success"
 }
 
-func getUsers(c net.Conn) string {
+func getUsers() string {
 	// return user list
-	return "success"
+	keys := rdb.Keys(ctx, "*")
+	json, _ := json.Marshal(keys.Val())
+	return string(json)
 }
 
-func getUserByEmail() {
-	// return user by email
+func getKey(c net.Conn) string {
+	keyreq := KeyRequest{}
+	tmp := make([]byte, 256)
+	n, err := c.Read(tmp)
+	if err != nil {
+		fmt.Println("read error:", err)
+	}
+	err = json.Unmarshal(tmp[:n], &keyreq)
+	redisval := rdb.Get(ctx, keyreq.Email)
+	if redisval.Err() == redis.Nil {
+		return "No such e-mail"
+	}
+	return redisval.Val()
+
 }
 
 func handler(c net.Conn) {
@@ -69,7 +74,10 @@ func handler(c net.Conn) {
 			result = registerUser(c)
 			break
 		case 2:
-			result = getUsers(c)
+			result = getUsers()
+			break
+		case 3:
+			result = getKey(c)
 			break
 		}
 
