@@ -8,5 +8,6 @@ WORKDIR /app/server
 COPY server/ .
 
 RUN go install -v ./...
+RUN go build
 
 CMD ["server"]
