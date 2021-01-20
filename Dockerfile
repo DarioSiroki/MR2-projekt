@@ -1,7 +1,5 @@
 FROM golang:1.14
 
-EXPOSE 6379
-
 WORKDIR ./server
 COPY . .
 
