@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"net"
 	"os"
+	"time"
 	"strconv"
 )
 
@@ -21,6 +22,7 @@ type KeyRequest struct {
 }
 
 func main() {
+	rand.Seed(time.Now().UTC().UnixNano())
 	action, _ := strconv.Atoi(os.Args[1])
 
 	// CONNECT TO THE SERVER
