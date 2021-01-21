@@ -11,6 +11,15 @@ import (
 	"strconv"
 )
 
+type User struct {
+	Email  string `json:"email"`
+	Pubkey string `json:"pubkey"`
+}
+
+type KeyRequest struct {
+	Email string `json:"email"`
+}
+
 func main() {
 	action, _ := strconv.Atoi(os.Args[1])
 

@@ -16,6 +16,15 @@ var ctx = context.Background()
 
 var rdb *redis.Client
 
+type User struct {
+	Email  string `json:"email"`
+	Pubkey string `json:"pubkey"`
+}
+
+type KeyRequest struct {
+	Email string `json:"email"`
+}
+
 func registerUser(c net.Conn) string {
 	user := User{}
 	tmp := make([]byte, 256)
